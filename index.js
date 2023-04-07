@@ -1,4 +1,6 @@
 const mineflayer = require('mineflayer')
+const { pathfinder, Movements, goals } = require("mineflayer-pathfinder");
+const GoalFollow = goals.GoalFollow
 
 const bot = mineflayer.createBot({
     host: 'localhost',
@@ -10,6 +12,9 @@ const bot = mineflayer.createBot({
 bot.on('kicked', console.log)
 bot.on('error', console.log)
 
+// Init plugins
+bot.loadPlugin(pathfinder);
+
 // User chatting with bot, activated by starting the message with '?'
 bot.on('chat', (username, message) => {
     if (username === bot.username) return
@@ -17,4 +22,26 @@ bot.on('chat', (username, message) => {
     if (message.substring(0,1) != '?') return
     bot.chat(message)
 })
-  
+
+function followPlayer(username) {
+    const player = bot.players[username]
+
+    if (!player) {
+        bot.chat("I can't follow: " + username)
+        return
+    }
+
+    // Loads pathfinder into bot
+    // Done once per program unless different Movements configurations
+    const mcData = require('minecraft-data')(bot.version)
+    const movements = new Movements(bot, mcData)
+    movements.scafoldingBlocks = [] // Removes bot from scafolding to player
+
+    bot.pathfinder.setMovements(movements)
+    
+
+    const goal = new GoalFollow(player.entity, 1) // 1 = # of blocks away
+    bot.pathfinder.setGoal(goal, true) // true if entity is dynamic (moving), constantly checks new position
+}
+
+
