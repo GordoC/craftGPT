@@ -4,7 +4,7 @@ const GoalFollow = goals.GoalFollow
 
 const bot = mineflayer.createBot({
     host: 'localhost',
-    port: 62239,
+    port: process.argv[2],
     username: 'CraftGPT'
 })
 
@@ -20,7 +20,8 @@ bot.on('chat', (username, message) => {
     if (username === bot.username) return
     if (message.length < 1) return
     if (message.substring(0,1) != '?') return
-    bot.chat(message)
+    // bot.chat(message)
+    followPlayer(username)
 })
 
 function followPlayer(username) {
