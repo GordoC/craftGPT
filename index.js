@@ -15,6 +15,10 @@ bot.on('error', console.log)
 // Init plugins
 bot.loadPlugin(pathfinder);
 
+bot.on('spawn', () => {
+    bot.chat("Hello!")
+})
+
 // User chatting with bot, activated by starting the message with '?'
 bot.on('chat', (username, message) => {
     if (username === bot.username) return
