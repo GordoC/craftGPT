@@ -31,14 +31,35 @@ bot.on('spawn', () => {
 
 // User chatting with bot, activated by starting the message with '?'
 bot.on('chat', (username, message) => {
+    // Checks if sender is not the bot (avoids feedback loop)
     if (username === bot.username) return
+
+    // Checks if message is valid command format
     if (message.length < 1) return
     if (message.substring(0,1) != '?') return
-    // bot.chat(message)
-    // followPlayer(username)
-    if (message == "?hi") findFarmland()
-    if (message == "?bye") findHarvestableFarmland('wheat')
-    if (message == "?reset") goToSpawn()
+
+    // Acquire command from message
+    let cmdLen = message.indexOf(' ')
+    let command = cmdLen != -1 ? message.substring(1, cmdLen) : message.substring(1)
+
+    // Commands
+    switch (command) {
+        case 'reset':
+            goToSpawn()
+            break
+        case 'echo':
+            bot.chat(message.substring(6))
+            break
+        case 'follow':
+            followPlayer(username)
+            break
+        case 'hi':
+            findFarmland()
+            break
+        case 'bye':
+            findHarvestableFarmland('wheat')
+            break
+    }
 })
 
 
