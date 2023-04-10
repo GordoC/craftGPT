@@ -3,20 +3,21 @@ const { pathfinder, Movements, goals } = require("mineflayer-pathfinder");
 const GoalFollow = goals.GoalFollow
 const GoalBlock = goals.GoalBlock
 
-
+// Init bot
 const bot = mineflayer.createBot({
     host: 'localhost',
     port: process.argv[2],
     username: 'CraftGPT'
 })
 
+// Init plugins
+bot.loadPlugin(pathfinder);
+
 // Log errors and kick reasons:
 bot.on('kicked', console.log)
 bot.on('error', console.log)
 
-// Init plugins
-bot.loadPlugin(pathfinder);
-
+// On spawn initialization
 bot.on('spawn', () => {
     bot.chat("hello!")
 
