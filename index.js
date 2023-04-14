@@ -60,6 +60,9 @@ bot.on("chat", (username, message) => {
         case "bye":
             findHarvestableFarmland("wheat")
             break
+        case "pickup":
+            collectItems(32)
+            break
     }
 })
 
