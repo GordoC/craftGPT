@@ -1,64 +1,64 @@
-const mineflayer = require('mineflayer')
+const mineflayer = require("mineflayer")
 const { pathfinder, Movements, goals } = require("mineflayer-pathfinder");
 const GoalFollow = goals.GoalFollow
 const GoalBlock = goals.GoalBlock
 
 // Init bot
 const bot = mineflayer.createBot({
-    host: 'localhost',
+    host: "localhost",
     port: process.argv[2],
-    username: 'CraftGPT'
+    username: "CraftGPT"
 })
 
 // Init plugins
 bot.loadPlugin(pathfinder);
 
 // Log errors and kick reasons:
-bot.on('kicked', console.log)
-bot.on('error', console.log)
+bot.on("kicked", console.log)
+bot.on("error", console.log)
 
 // On spawn initialization
-bot.on('spawn', () => {
+bot.on("spawn", () => {
     bot.chat("hello!")
 
     // Loads pathfinder into bot
     // Done once per program unless different Movements configurations
-    const mcData = require('minecraft-data')(bot.version)
+    const mcData = require("minecraft-data")(bot.version)
     const movements = new Movements(bot, mcData)
     movements.scafoldingBlocks = [] // Removes bot from scafolding to player
 
     bot.pathfinder.setMovements(movements)
 })
 
-// User chatting with bot, activated by starting the message with '?'
-bot.on('chat', (username, message) => {
+// User chatting with bot, activated by starting the message with "?"
+bot.on("chat", (username, message) => {
     // Checks if sender is not the bot (avoids feedback loop)
     if (username === bot.username) return
 
     // Checks if message is valid command format
     if (message.length < 1) return
-    if (message.substring(0,1) != '?') return
+    if (message.substring(0,1) != "?") return
 
     // Acquire command from message
-    let cmdLen = message.indexOf(' ')
+    let cmdLen = message.indexOf(" ")
     let command = cmdLen != -1 ? message.substring(1, cmdLen) : message.substring(1)
 
     // Commands
     switch (command) {
-        case 'reset':
+        case "reset":
             goToSpawn()
             break
-        case 'echo':
+        case "echo":
             bot.chat(message.substring(6))
             break
-        case 'follow':
+        case "follow":
             followPlayer(username)
             break
-        case 'hi':
-            findFarmland()
+        case "hi":
+            findBlock("farmland")
             break
-        case 'bye':
-            findHarvestableFarmland('wheat')
+        case "bye":
+            findHarvestableFarmland("wheat")
             break
     }
 })
@@ -86,21 +86,21 @@ function goToSpawn() {
     bot.pathfinder.setGoal(goal)
 }
 
-// Finds closest farmland
-function findFarmland() {
-    const farmland = bot.findBlock({
+// Finds closest block given name
+function findBlock(blockName) {
+    const block = bot.findBlock({
         matching: (block)=>{
-			return block.name === 'farmland'
+			return block.name === blockName
 		},
         maxDistance: 32
     })
 
-    if (!farmland) {
-        bot.chat("No farmlands")
+    if (!block) {
+        bot.chat("No " + blockName)
         return
     }
 
-    // Set goal to 1 block above farmland in bot
+    // Set goal to 1 block above block in bot
     const x = farmland.position.x
     const y = farmland.position.y + 1
     const z = farmland.position.z
@@ -137,14 +137,14 @@ function findHarvestableFarmland(cropName) {
 // Collects all dropped items in a given distance
 function collectItems(distance) {
     let itemEntity = bot.nearestEntity((entity)=>{
-		return entity.name.toLowerCase() === 'item'
+		return entity.name.toLowerCase() === "item"
 	});
 
     while (itemEntity && bot.position.distanceTo(itemEntity.position) <= distance) {
         bot.goto(itemEntity.position);
         if (bot.position = itemEntity.position) {
             itemEntity = bot.nearestEntity((entity)=>{
-                return entity.name.toLowerCase() === 'item'
+                return entity.name.toLowerCase() === "item"
             });
         }
     }
