@@ -128,5 +128,24 @@ function findHarvestableFarmland(cropName) {
     const z = harvestableFarmLand.position.z
     const goal = new GoalBlock(x, y, z)
     bot.pathfinder.setGoal(goal)
+
+    // Break the harvestable crop
+    bot.dig(harvestableFarmLand)
+}
+
+// Collects all dropped items in a 32 radius
+function collectItems() {
+    let itemEntity = bot.nearestEntity((entity)=>{
+		return entity.name.toLowerCase() === 'item'
+	});
+
+    while (itemEntity && bot.position.distanceTo(itemEntity.position) <= 32) {
+        bot.goto(itemEntity.position);
+        if (bot.position = itemEntity.position) {
+            itemEntity = bot.nearestEntity((entity)=>{
+                return entity.name.toLowerCase() === 'item'
+            });
+        }
+    }
 }
 
