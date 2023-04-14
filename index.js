@@ -108,7 +108,7 @@ function findFarmland() {
     bot.pathfinder.setGoal(goal)
 }
 
-// Finds closest harvestable farmland based on crop name
+// Finds closest harvestable farmland based on crop name and returns it
 function findHarvestableFarmland(cropName) {
     const harvestableFarmLand = bot.findBlock({
         matching: (block)=>{
@@ -129,17 +129,18 @@ function findHarvestableFarmland(cropName) {
     const goal = new GoalBlock(x, y, z)
     bot.pathfinder.setGoal(goal)
 
-    // Break the harvestable crop
-    bot.dig(harvestableFarmLand)
+    return harvestableFarmLand
+    // // Break the harvestable crop
+    // bot.dig(harvestableFarmLand)
 }
 
-// Collects all dropped items in a 32 radius
-function collectItems() {
+// Collects all dropped items in a given distance
+function collectItems(distance) {
     let itemEntity = bot.nearestEntity((entity)=>{
 		return entity.name.toLowerCase() === 'item'
 	});
 
-    while (itemEntity && bot.position.distanceTo(itemEntity.position) <= 32) {
+    while (itemEntity && bot.position.distanceTo(itemEntity.position) <= distance) {
         bot.goto(itemEntity.position);
         if (bot.position = itemEntity.position) {
             itemEntity = bot.nearestEntity((entity)=>{
