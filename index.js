@@ -31,7 +31,7 @@ bot.on("spawn", () => {
 })
 
 // User chatting with bot, activated by starting the message with "?"
-bot.on("chat", (username, message) => {
+bot.on("chat", async (username, message) => {
     // Checks if sender is not the bot (avoids feedback loop)
     if (username === bot.username) return
 
@@ -61,7 +61,7 @@ bot.on("chat", (username, message) => {
             findHarvestableFarmland("wheat")
             break
         case "pickup":
-            collectItems(32)
+            await collectItems(32)
             break
     }
 })
@@ -104,9 +104,9 @@ function findBlock(blockName) {
     }
 
     // Set goal to 1 block above block in bot
-    const x = farmland.position.x
-    const y = farmland.position.y + 1
-    const z = farmland.position.z
+    const x = block.position.x
+    const y = block.position.y + 1
+    const z = block.position.z
     const goal = new GoalBlock(x, y, z)
     bot.pathfinder.setGoal(goal)
 }
@@ -133,23 +133,25 @@ function findHarvestableFarmland(cropName) {
     bot.pathfinder.setGoal(goal)
 
     return harvestableFarmLand
-    // // Break the harvestable crop
-    // bot.dig(harvestableFarmLand)
 }
 
 // Collects all dropped items in a given distance
-function collectItems(distance) {
-    let itemEntity = bot.nearestEntity((entity)=>{
+async function collectItems(distance) {
+    let itemEntity = bot.nearestEntity((entity) => {
 		return entity.name.toLowerCase() === "item"
 	});
 
-    while (itemEntity && bot.position.distanceTo(itemEntity.position) <= distance) {
-        bot.goto(itemEntity.position);
-        if (bot.position = itemEntity.position) {
-            itemEntity = bot.nearestEntity((entity)=>{
-                return entity.name.toLowerCase() === "item"
-            });
-        }
+    while (itemEntity && bot.entity.position.distanceTo(itemEntity.position) <= distance) {
+        const x = itemEntity.position.x
+        const y = itemEntity.position.y
+        const z = itemEntity.position.z
+        const goal = new GoalBlock(x, y, z)
+        await bot.pathfinder.goto(goal)
+        itemEntity = bot.nearestEntity((entity) => { // Find anymore dropped items 
+            return entity.name.toLowerCase() === "item"
+        });
     }
+
+    bot.chat("No more dropped items")
 }
 
