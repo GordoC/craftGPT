@@ -44,26 +44,31 @@ bot.on("chat", async (username, message) => {
     let command = cmdLen != -1 ? message.substring(1, cmdLen) : message.substring(1)
 
     // Commands
-    switch (command) {
-        case "reset":
-            goToSpawn()
-            break
-        case "echo":
-            bot.chat(message.substring(6))
-            break
-        case "follow":
-            followPlayer(username)
-            break
-        case "hi":
-            await findBlock("farmland")
-            break
-        case "bye":
-            await findHarvestableFarmland("wheat")
-            break
-        case "pickup":
-            await collectItems(32)
-            break
+    try {
+        switch (command) {
+            case "reset":
+                goToSpawn()
+                break
+            case "echo":
+                bot.chat(message.substring(6))
+                break
+            case "follow":
+                followPlayer(username)
+                break
+            case "hi":
+                await findBlock("farmland")
+                break
+            case "bye":
+                await findHarvestableFarmland("wheat")
+                break
+            case "pickup":
+                await collectItems(32)
+                break
+        }
+    } catch (error) {
+        console.log(error)
     }
+    
 })
 
 
