@@ -55,10 +55,10 @@ bot.on("chat", async (username, message) => {
             followPlayer(username)
             break
         case "hi":
-            findBlock("farmland")
+            await findBlock("farmland")
             break
         case "bye":
-            findHarvestableFarmland("wheat")
+            await findHarvestableFarmland("wheat")
             break
         case "pickup":
             await collectItems(32)
@@ -90,7 +90,7 @@ function goToSpawn() {
 }
 
 // Finds closest block given name
-function findBlock(blockName) {
+async function findBlock(blockName) {
     const block = bot.findBlock({
         matching: (block)=>{
 			return block.name === blockName
@@ -108,11 +108,11 @@ function findBlock(blockName) {
     const y = block.position.y + 1
     const z = block.position.z
     const goal = new GoalBlock(x, y, z)
-    bot.pathfinder.setGoal(goal)
+    await bot.pathfinder.goto(goal)
 }
 
 // Finds closest harvestable farmland based on crop name and returns it
-function findHarvestableFarmland(cropName) {
+async function findHarvestableFarmland(cropName) {
     const harvestableFarmLand = bot.findBlock({
         matching: (block)=>{
 			return (block.name == cropName && block.metadata == 7)
@@ -130,7 +130,7 @@ function findHarvestableFarmland(cropName) {
     const y = harvestableFarmLand.position.y + 1
     const z = harvestableFarmLand.position.z
     const goal = new GoalBlock(x, y, z)
-    bot.pathfinder.setGoal(goal)
+    await bot.pathfinder.goto(goal)
 
     return harvestableFarmLand
 }
