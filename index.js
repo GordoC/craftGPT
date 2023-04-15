@@ -108,12 +108,7 @@ async function findBlock(blockName) {
         return
     }
 
-    // Set goal to 1 block above block in bot
-    const x = block.position.x
-    const y = block.position.y + 1
-    const z = block.position.z
-    const goal = new GoalBlock(x, y, z)
-    await bot.pathfinder.goto(goal)
+    await bot.pathfinder.goto(positionToGoalBlock(block.position, true))
 }
 
 // Finds closest harvestable farmland based on crop name and returns it
@@ -130,12 +125,7 @@ async function findHarvestableFarmland(cropName) {
         return
     }
 
-    // Set goal to 1 block above harvestable farmland in bot
-    const x = harvestableFarmLand.position.x
-    const y = harvestableFarmLand.position.y + 1
-    const z = harvestableFarmLand.position.z
-    const goal = new GoalBlock(x, y, z)
-    await bot.pathfinder.goto(goal)
+    await bot.pathfinder.goto(positionToGoalBlock(harvestableFarmLand.position, true))
 
     return harvestableFarmLand
 }
@@ -147,16 +137,20 @@ async function collectItems(distance) {
 	});
 
     while (itemEntity && bot.entity.position.distanceTo(itemEntity.position) <= distance) {
-        const x = itemEntity.position.x
-        const y = itemEntity.position.y
-        const z = itemEntity.position.z
-        const goal = new GoalBlock(x, y, z)
-        await bot.pathfinder.goto(goal)
+        await bot.pathfinder.goto(positionToGoalBlock(itemEntity.position, false))
         itemEntity = bot.nearestEntity((entity) => { // Find anymore dropped items 
             return entity.name.toLowerCase() === "item"
         });
     }
 
     bot.chat("No more dropped items")
+}
+
+// Takes position of block and if bot should be on top of block, returns GoalBlock
+function positionToGoalBlock(position, topOfBlock) {
+    const x = position.x
+    const y = topOfBlock ? position.y + 1 : position.y // Set goal to 1 block above so bot doesn't dig block
+    const z = position.z
+    return new GoalBlock(x, y, z)
 }
 
