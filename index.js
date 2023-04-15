@@ -56,7 +56,7 @@ bot.on("chat", async (username, message) => {
                 followPlayer(username)
                 break
             case "hi":
-                await findBlock("farmland")
+                await findBlock("farmland", true)
                 break
             case "bye":
                 await findHarvestableFarmland("wheat")
@@ -90,31 +90,44 @@ function goToSpawn() {
     const x = 0
     const y = -60
     const z = 0
-    const goal = new GoalBlock(x, y, z)
-    bot.pathfinder.setGoal(goal)
+    bot.pathfinder.setGoal(new GoalBlock(x, y, z))
 }
 
-// Finds closest block given name
-async function findBlock(blockName) {
-    const block = bot.findBlock({
-        matching: (block)=>{
-			return block.name === blockName
+// Finds closest block given name and if the top should be "open" (air/cave air)
+async function findBlock(blockName, topIsOpen) {
+    const blocks = bot.findBlocks({
+        matching: (block) => { 
+			return (block.name === blockName) 
 		},
+        count: 32 * 32,
         maxDistance: 32
     })
 
-    if (!block) {
+    console.log(blocks)
+    if (blocks.length == 0) {
         bot.chat("No " + blockName)
         return
     }
 
-    await bot.pathfinder.goto(positionToGoalBlock(block.position, true))
+    let blockGoal = blocks[0];
+    if (topIsOpen) {
+        blocks.forEach((block) => {
+            let aboveBlock = bot.blockAt(block.offset(0, 1, 0))
+            if (aboveBlock.name === "air" || aboveBlock.name === "cave_air") {
+                blockGoal = block
+            }
+                
+        })
+    } 
+    
+    await bot.pathfinder.goto(positionToGoalBlock(blockGoal, true))
+    
 }
 
 // Finds closest harvestable farmland based on crop name and returns it
 async function findHarvestableFarmland(cropName) {
     const harvestableFarmLand = bot.findBlock({
-        matching: (block)=>{
+        matching: (block) => {
 			return (block.name == cropName && block.metadata == 7)
 		},
         maxDistance: 32
@@ -147,9 +160,9 @@ async function collectItems(distance) {
 }
 
 // Takes position of block and if bot should be on top of block, returns GoalBlock
-function positionToGoalBlock(position, topOfBlock) {
+function positionToGoalBlock(position, onTopOfBlock) {
     const x = position.x
-    const y = topOfBlock ? position.y + 1 : position.y // Set goal to 1 block above so bot doesn't dig block
+    const y = onTopOfBlock ? position.y + 1 : position.y // Set goal to 1 block above so bot doesn't dig block
     const z = position.z
     return new GoalBlock(x, y, z)
 }
